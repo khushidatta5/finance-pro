@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Finance Pro — Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+    <link href="/css/styles.css" rel="stylesheet"/>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-icon">FP</div>
+        <span class="brand-name">Finance Pro</span>
+        <button class="sidebar-close d-lg-none" onclick="closeSidebar()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <nav class="sidebar-nav">
+        <a href="/dashboard"     class="nav-item active"><i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span></a>
+        <a href="/analytics"     class="nav-item"><i class="bi bi-bar-chart-line-fill"></i><span>Analytics</span></a>
+        <a href="/income"        class="nav-item"><i class="bi bi-arrow-up-circle-fill"></i><span>Income Streams</span></a>
+        <a href="/transactions"  class="nav-item"><i class="bi bi-arrow-left-right"></i><span>Transactions</span></a>
+        <a href="/expenses"      class="nav-item"><i class="bi bi-credit-card-fill"></i><span>Expenses</span></a>
+        <a href="/settings"      class="nav-item"><i class="bi bi-gear-fill"></i><span>Settings</span></a>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="user-avatar-sm" th:text="${user.fullName != null ? #strings.substring(user.fullName,0,1) : 'U'}">A</div>
+        <div class="flex-grow-1">
+            <div class="fw-600 small" th:text="${user.fullName ?: user.username}">Alex Johnson</div>
+            <div class="text-muted" style="font-size:.72rem;" th:text="${user.email}">alex@email.com</div>
+        </div>
+        <a href="/logout" class="text-muted ms-1" title="Logout"><i class="bi bi-box-arrow-right"></i></a>
+    </div>
+</div>
+
+<!-- Overlay -->
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- Main Content -->
+<main class="main-content">
+    <!-- Topbar -->
+    <div class="topbar">
+        <button class="topbar-toggle d-lg-none" onclick="openSidebar()"><i class="bi bi-list"></i></button>
+        <div class="topbar-left">
+            <div>
+                <h4 class="mb-0 fw-700" id="greetingText">Happy Day !!</h4>
+                <small class="text-muted" id="clockText">Loading time...</small>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <div class="clock-badge"><i class="bi bi-clock me-1"></i><span id="liveClock">--:--:--</span></div>
+            <div class="currency-badge" th:text="${user.currency ?: 'INR'}">INR</div>
+        </div>
+    </div>
+
+    <div class="page-content">
+        <!-- Flash Messages -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show rounded-3 mb-4">
+            <i class="bi bi-check-circle-fill me-2"></i><span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- ── Stat Cards ─────────────────────────────────────────────────── -->
+        <div class="row g-4 mb-4">
+            <div class="col-12 col-sm-6 col-xl-4">
+                <div class="stat-card stat-income">
+                    <div class="stat-icon"><i class="bi bi-arrow-up-circle-fill"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-label">Total Income</div>
+                        <div class="stat-value" data-target="[[${summary.totalIncome}]]">
+                            ₹<span class="counter" th:data-target="${summary.totalIncome}">0</span>
+                        </div>
+                        <div class="stat-sub"><i class="bi bi-graph-up-arrow me-1"></i>All time earnings</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-4">
+                <div class="stat-card stat-budget">
+                    <div class="stat-icon"><i class="bi bi-wallet2"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-label">Monthly Budget</div>
+                        <div class="stat-value">
+                            ₹<span class="counter" th:data-target="${summary.monthlyBudget}">0</span>
+                        </div>
+                        <div class="stat-sub"><i class="bi bi-calendar-month me-1"></i>Current month limit</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-4">
+                <div class="stat-card" th:classappend="${summary.remainingBalance >= 0 ? 'stat-positive' : 'stat-negative'}">
+                    <div class="stat-icon"><i class="bi bi-piggy-bank-fill"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-label">Remaining Balance</div>
+                        <div class="stat-value" th:classappend="${summary.remainingBalance >= 0 ? 'text-success' : 'text-danger'}">
+                            ₹<span class="counter" th:data-target="${summary.remainingBalance}">0</span>
+                        </div>
+                        <div class="stat-sub" th:text="${summary.remainingBalance >= 0 ? '✓ You are on track' : '⚠ Over budget!'}">Status</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Category Cards ─────────────────────────────────────────────── -->
+        <div class="section-title mb-3">Expense Categories</div>
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-lg-3">
+                <div class="category-card cat-food">
+                    <div class="cat-icon"><i class="bi bi-bag-heart-fill"></i></div>
+                    <div class="cat-label">Food</div>
+                    <div class="cat-amount">₹<span class="counter" th:data-target="${summary.foodTotal}">0</span></div>
+                    <div class="progress cat-progress mt-2">
+                        <div class="progress-bar bg-warning" th:style="'width:' + ${summary.foodPercentage} + '%'" style="border-radius:4px;"></div>
+                    </div>
+                    <div class="cat-pct" th:text="${#numbers.formatDecimal(summary.foodPercentage,1,1) + '%'}">0%</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="category-card cat-travel">
+                    <div class="cat-icon"><i class="bi bi-airplane-fill"></i></div>
+                    <div class="cat-label">Travel</div>
+                    <div class="cat-amount">₹<span class="counter" th:data-target="${summary.travelTotal}">0</span></div>
+                    <div class="progress cat-progress mt-2">
+                        <div class="progress-bar bg-info" th:style="'width:' + ${summary.travelPercentage} + '%'" style="border-radius:4px;"></div>
+                    </div>
+                    <div class="cat-pct" th:text="${#numbers.formatDecimal(summary.travelPercentage,1,1) + '%'}">0%</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="category-card cat-shopping">
+                    <div class="cat-icon"><i class="bi bi-bag-fill"></i></div>
+                    <div class="cat-label">Shopping</div>
+                    <div class="cat-amount">₹<span class="counter" th:data-target="${summary.shoppingTotal}">0</span></div>
+                    <div class="progress cat-progress mt-2">
+                        <div class="progress-bar bg-danger" th:style="'width:' + ${summary.shoppingPercentage} + '%'" style="border-radius:4px;"></div>
+                    </div>
+                    <div class="cat-pct" th:text="${#numbers.formatDecimal(summary.shoppingPercentage,1,1) + '%'}">0%</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="category-card cat-bills">
+                    <div class="cat-icon"><i class="bi bi-receipt-cutoff"></i></div>
+                    <div class="cat-label">Bills</div>
+                    <div class="cat-amount">₹<span class="counter" th:data-target="${summary.billsTotal}">0</span></div>
+                    <div class="progress cat-progress mt-2">
+                        <div class="progress-bar bg-success" th:style="'width:' + ${summary.billsPercentage} + '%'" style="border-radius:4px;"></div>
+                    </div>
+                    <div class="cat-pct" th:text="${#numbers.formatDecimal(summary.billsPercentage,1,1) + '%'}">0%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Budget Health ──────────────────────────────────────────────── -->
+        <div class="row g-4 mb-4">
+            <div class="col-12 col-lg-8">
+                <div class="card-custom p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="section-title mb-0">Budget Health</div>
+                        <span class="badge rounded-pill px-3 py-2"
+                              th:classappend="${summary.budgetUsedPercentage < 50 ? 'bg-success' : (summary.budgetUsedPercentage < 80 ? 'bg-warning text-dark' : 'bg-danger')}"
+                              th:text="${#numbers.formatDecimal(summary.budgetUsedPercentage,1,1) + '% used'}">50%</span>
+                    </div>
+                    <div class="progress" style="height:14px;border-radius:10px;background:#e2e8f0;">
+                        <div id="budgetBar" class="progress-bar progress-bar-striped progress-bar-animated"
+                             role="progressbar"
+                             th:style="'width:0%;'"
+                             th:data-target="${summary.budgetUsedPercentage}"
+                             th:classappend="${summary.budgetUsedPercentage < 50 ? 'bg-success' : (summary.budgetUsedPercentage < 80 ? 'bg-warning' : 'bg-danger')}"
+                             style="border-radius:10px;transition:width 1.5s ease;">
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-2 text-muted small">
+                        <span>₹0</span>
+                        <span>Monthly Budget: ₹<span th:text="${#numbers.formatDecimal(summary.monthlyBudget,1,'COMMA',2,'POINT')}">50,000</span></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-4">
+                <div class="card-custom p-4 h-100">
+                    <div class="section-title mb-3">Quick Stats</div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted small">Total Expenses</span>
+                        <span class="fw-600 text-danger">₹<span th:text="${#numbers.formatDecimal(summary.totalExpenses,1,'COMMA',2,'POINT')}">0</span></span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted small">Total Income</span>
+                        <span class="fw-600 text-success">₹<span th:text="${#numbers.formatDecimal(summary.totalIncome,1,'COMMA',2,'POINT')}">0</span></span>
+                    </div>
+                    <hr class="my-2"/>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted small">Net Balance</span>
+                        <span class="fw-700" th:classappend="${summary.remainingBalance >= 0 ? 'text-success' : 'text-danger'}">
+                            ₹<span th:text="${#numbers.formatDecimal(summary.remainingBalance,1,'COMMA',2,'POINT')}">0</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Charts ─────────────────────────────────────────────────────── -->
+        <div class="row g-4 mb-4">
+            <div class="col-12 col-md-5">
+                <div class="card-custom p-4">
+                    <div class="section-title mb-3">Category Distribution</div>
+                    <div style="position:relative;height:260px;">
+                        <canvas id="pieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-7">
+                <div class="card-custom p-4">
+                    <div class="section-title mb-3">Weekly Spending</div>
+                    <div style="position:relative;height:260px;">
+                        <canvas id="barChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Savings Goals & Recent Transactions ────────────────────────── -->
+        <div class="row g-4 mb-4">
+            <div class="col-12 col-lg-5">
+                <div class="card-custom p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="section-title mb-0">Savings Goals</div>
+                        <span class="badge bg-primary rounded-pill" th:text="${#lists.size(summary.savingsGoals)} + ' goals'">3 goals</span>
+                    </div>
+                    <div th:each="goal : ${summary.savingsGoals}" class="mb-4">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="fw-500 small" th:text="${goal.title}">Emergency Fund</span>
+                            <span class="small text-muted" th:text="${goal.progressPercentage + '%'}">65%</span>
+                        </div>
+                        <div class="progress" style="height:8px;border-radius:10px;background:#e2e8f0;">
+                            <div class="progress-bar bg-primary"
+                                 th:style="'width:' + ${goal.progressPercentage} + '%'"
+                                 style="border-radius:10px;transition:width 1s ease;"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-1">
+                            <span class="small text-muted">₹<span th:text="${#numbers.formatDecimal(goal.currentAmount,1,'COMMA',0,'POINT')}">6,500</span></span>
+                            <span class="small text-muted">₹<span th:text="${#numbers.formatDecimal(goal.targetAmount,1,'COMMA',0,'POINT')}">10,000</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-7">
+                <div class="card-custom p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="section-title mb-0">Recent Transactions</div>
+                        <a href="/transactions" class="btn btn-sm btn-outline-primary rounded-pill px-3">View All</a>
+                    </div>
+                    <div class="transactions-list">
+                        <div th:each="tx : ${summary.recentTransactions}" class="transaction-row">
+                            <div class="tx-icon" th:classappend="${tx.type == 'INCOME' ? 'tx-income-icon' : 'tx-expense-icon'}">
+                                <i th:class="${tx.type == 'INCOME' ? 'bi bi-arrow-up-right' : 'bi bi-arrow-down-left'}"></i>
+                            </div>
+                            <div class="tx-details flex-grow-1">
+                                <div class="tx-title" th:text="${tx.title}">Title</div>
+                                <div class="tx-date" th:text="${tx.transactionDate}">2024-01-01</div>
+                            </div>
+                            <div class="tx-amount" th:classappend="${tx.type == 'INCOME' ? 'text-success' : 'text-danger'}">
+                                <span th:text="${tx.type == 'INCOME' ? '+' : '-'}"></span>₹<span th:text="${#numbers.formatDecimal(tx.amount,1,'COMMA',2,'POINT')}">0</span>
+                            </div>
+                        </div>
+                        <div th:if="${#lists.isEmpty(summary.recentTransactions)}" class="text-center text-muted py-4">
+                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>No transactions yet
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Chart data from server -->
+<div id="chartData"
+     th:data-category="${summary.categoryData}"
+     th:data-weekly="${summary.weeklyData}"
+     th:data-monthly="${summary.monthlyData}"
+     style="display:none;"
+     th:attr="
+        data-food=${summary.foodTotal},
+        data-travel=${summary.travelTotal},
+        data-shopping=${summary.shoppingTotal},
+        data-bills=${summary.billsTotal},
+        data-w1=${summary.weeklyData['Week 1']},
+        data-w2=${summary.weeklyData['Week 2']},
+        data-w3=${summary.weeklyData['Week 3']},
+        data-w4=${summary.weeklyData['Week 4']}">
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="/js/main.js"></script>
+<script>
+// ── Animated number counters ─────────────────────────────────────────────────
+document.querySelectorAll('.counter').forEach(el => {
+    const target = parseFloat(el.dataset.target || el.closest('[data-target]')?.dataset.target || '0');
+    animateCounter(el, target);
+});
+
+// ── Budget bar animation ──────────────────────────────────────────────────────
+setTimeout(() => {
+    const bar = document.getElementById('budgetBar');
+    if (bar) bar.style.width = bar.dataset.target + '%';
+}, 300);
+
+// ── Charts ────────────────────────────────────────────────────────────────────
+const cd = document.getElementById('chartData');
+const food     = parseFloat(cd.dataset.food || 0);
+const travel   = parseFloat(cd.dataset.travel || 0);
+const shopping = parseFloat(cd.dataset.shopping || 0);
+const bills    = parseFloat(cd.dataset.bills || 0);
+const w1 = parseFloat(cd.dataset.w1 || 0);
+const w2 = parseFloat(cd.dataset.w2 || 0);
+const w3 = parseFloat(cd.dataset.w3 || 0);
+const w4 = parseFloat(cd.dataset.w4 || 0);
+
+// Pie chart
+new Chart(document.getElementById('pieChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Food', 'Travel', 'Shopping', 'Bills'],
+        datasets: [{ data: [food, travel, shopping, bills],
+            backgroundColor: ['#fbbf24','#38bdf8','#f472b6','#4ade80'],
+            borderWidth: 3, borderColor: '#fff', hoverOffset: 8 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { padding: 20, font: { family: 'Inter', size: 12 } } } } }
+});
+
+// Bar chart
+new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: {
+        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+        datasets: [{ label: 'Spending (₹)', data: [w1, w2, w3, w4],
+            backgroundColor: ['rgba(102,126,234,0.8)','rgba(102,126,234,0.6)','rgba(102,126,234,0.4)','rgba(102,126,234,0.9)'],
+            borderRadius: 8, borderSkipped: false }]
+    },
+    options: { responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } } }
+});
+</script>
+</body>
+</html>

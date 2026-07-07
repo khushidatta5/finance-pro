@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Finance Pro — Analytics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+    <link href="/css/styles.css" rel="stylesheet"/>
+</head>
+<body>
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-icon">FP</div><span class="brand-name">Finance Pro</span>
+        <button class="sidebar-close d-lg-none" onclick="closeSidebar()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <nav class="sidebar-nav">
+        <a href="/dashboard"    class="nav-item"><i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span></a>
+        <a href="/analytics"    class="nav-item active"><i class="bi bi-bar-chart-line-fill"></i><span>Analytics</span></a>
+        <a href="/income"       class="nav-item"><i class="bi bi-arrow-up-circle-fill"></i><span>Income Streams</span></a>
+        <a href="/transactions" class="nav-item"><i class="bi bi-arrow-left-right"></i><span>Transactions</span></a>
+        <a href="/expenses"     class="nav-item"><i class="bi bi-credit-card-fill"></i><span>Expenses</span></a>
+        <a href="/settings"     class="nav-item"><i class="bi bi-gear-fill"></i><span>Settings</span></a>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="user-avatar-sm" th:text="${user.fullName != null ? #strings.substring(user.fullName,0,1) : 'U'}">A</div>
+        <div class="flex-grow-1">
+            <div class="fw-600 small" th:text="${user.fullName ?: user.username}">Alex</div>
+            <div class="text-muted" style="font-size:.72rem;" th:text="${user.email}">email</div>
+        </div>
+        <a href="/logout" class="text-muted"><i class="bi bi-box-arrow-right"></i></a>
+    </div>
+</div>
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+<main class="main-content">
+    <div class="topbar">
+        <button class="topbar-toggle d-lg-none" onclick="openSidebar()"><i class="bi bi-list"></i></button>
+        <div class="topbar-left"><h4 class="mb-0 fw-700">Analytics</h4></div>
+        <div class="topbar-right">
+            <div class="clock-badge"><i class="bi bi-clock me-1"></i><span id="liveClock">--:--:--</span></div>
+        </div>
+    </div>
+    <div class="page-content">
+        <!-- Summary row -->
+        <div class="row g-4 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="mini-stat-card">
+                    <div class="mini-stat-icon text-success"><i class="bi bi-arrow-up-circle-fill"></i></div>
+                    <div class="mini-stat-val text-success">₹<span th:text="${#numbers.formatDecimal(summary.totalIncome,1,'COMMA',2,'POINT')}">0</span></div>
+                    <div class="mini-stat-label">Total Income</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="mini-stat-card">
+                    <div class="mini-stat-icon text-danger"><i class="bi bi-arrow-down-circle-fill"></i></div>
+                    <div class="mini-stat-val text-danger">₹<span th:text="${#numbers.formatDecimal(summary.totalExpenses,1,'COMMA',2,'POINT')}">0</span></div>
+                    <div class="mini-stat-label">Total Expenses</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="mini-stat-card">
+                    <div class="mini-stat-icon text-primary"><i class="bi bi-piggy-bank-fill"></i></div>
+                    <div class="mini-stat-val" th:classappend="${summary.remainingBalance >= 0 ? 'text-success' : 'text-danger'}">
+                        ₹<span th:text="${#numbers.formatDecimal(summary.remainingBalance,1,'COMMA',2,'POINT')}">0</span>
+                    </div>
+                    <div class="mini-stat-label">Net Balance</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="mini-stat-card">
+                    <div class="mini-stat-icon text-warning"><i class="bi bi-graph-up"></i></div>
+                    <div class="mini-stat-val text-warning" th:text="${#numbers.formatDecimal(summary.budgetUsedPercentage,1,1) + '%'}">0%</div>
+                    <div class="mini-stat-label">Budget Used</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Trend Line Chart -->
+        <div class="row g-4 mb-4">
+            <div class="col-12">
+                <div class="card-custom p-4">
+                    <div class="section-title mb-3">Monthly Expense Trend</div>
+                    <div style="position:relative;height:300px;"><canvas id="lineChart"></canvas></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pie + Bar side by side -->
+        <div class="row g-4 mb-4">
+            <div class="col-12 col-md-6">
+                <div class="card-custom p-4">
+                    <div class="section-title mb-3">Expense by Category</div>
+                    <div style="position:relative;height:280px;"><canvas id="pieChart2"></canvas></div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="card-custom p-4">
+                    <div class="section-title mb-3">Weekly Breakdown</div>
+                    <div style="position:relative;height:280px;"><canvas id="barChart2"></canvas></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category breakdown table -->
+        <div class="card-custom p-4">
+            <div class="section-title mb-3">Category Breakdown</div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead><tr>
+                        <th>Category</th><th>Amount</th><th>% of Total</th><th>Progress</th>
+                    </tr></thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="badge rounded-pill" style="background:#fef3c7;color:#92400e;">Food</span></td>
+                            <td class="fw-600">₹<span th:text="${#numbers.formatDecimal(summary.foodTotal,1,'COMMA',2,'POINT')}">0</span></td>
+                            <td th:text="${#numbers.formatDecimal(summary.foodPercentage,1,1) + '%'}">0%</td>
+                            <td style="min-width:160px;"><div class="progress" style="height:8px;"><div class="progress-bar bg-warning" th:style="'width:'+${summary.foodPercentage}+'%'" style="border-radius:4px;"></div></div></td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge rounded-pill" style="background:#e0f2fe;color:#0369a1;">Travel</span></td>
+                            <td class="fw-600">₹<span th:text="${#numbers.formatDecimal(summary.travelTotal,1,'COMMA',2,'POINT')}">0</span></td>
+                            <td th:text="${#numbers.formatDecimal(summary.travelPercentage,1,1) + '%'}">0%</td>
+                            <td><div class="progress" style="height:8px;"><div class="progress-bar bg-info" th:style="'width:'+${summary.travelPercentage}+'%'" style="border-radius:4px;"></div></div></td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge rounded-pill" style="background:#fdf2f8;color:#9d174d;">Shopping</span></td>
+                            <td class="fw-600">₹<span th:text="${#numbers.formatDecimal(summary.shoppingTotal,1,'COMMA',2,'POINT')}">0</span></td>
+                            <td th:text="${#numbers.formatDecimal(summary.shoppingPercentage,1,1) + '%'}">0%</td>
+                            <td><div class="progress" style="height:8px;"><div class="progress-bar bg-danger" th:style="'width:'+${summary.shoppingPercentage}+'%'" style="border-radius:4px;"></div></div></td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge rounded-pill" style="background:#f0fdf4;color:#166534;">Bills</span></td>
+                            <td class="fw-600">₹<span th:text="${#numbers.formatDecimal(summary.billsTotal,1,'COMMA',2,'POINT')}">0</span></td>
+                            <td th:text="${#numbers.formatDecimal(summary.billsPercentage,1,1) + '%'}">0%</td>
+                            <td><div class="progress" style="height:8px;"><div class="progress-bar bg-success" th:style="'width:'+${summary.billsPercentage}+'%'" style="border-radius:4px;"></div></div></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div id="analyticsData" style="display:none;"
+     th:attr="
+        data-food=${summary.foodTotal},
+        data-travel=${summary.travelTotal},
+        data-shopping=${summary.shoppingTotal},
+        data-bills=${summary.billsTotal},
+        data-w1=${summary.weeklyData['Week 1']},
+        data-w2=${summary.weeklyData['Week 2']},
+        data-w3=${summary.weeklyData['Week 3']},
+        data-w4=${summary.weeklyData['Week 4']},
+        data-jan=${summary.monthlyData['Jan']},
+        data-feb=${summary.monthlyData['Feb']},
+        data-mar=${summary.monthlyData['Mar']},
+        data-apr=${summary.monthlyData['Apr']},
+        data-may=${summary.monthlyData['May']},
+        data-jun=${summary.monthlyData['Jun']},
+        data-jul=${summary.monthlyData['Jul']},
+        data-aug=${summary.monthlyData['Aug']},
+        data-sep=${summary.monthlyData['Sep']},
+        data-oct=${summary.monthlyData['Oct']},
+        data-nov=${summary.monthlyData['Nov']},
+        data-dec=${summary.monthlyData['Dec']}">
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="/js/main.js"></script>
+<script>
+const d = document.getElementById('analyticsData');
+const getF = k => parseFloat(d.dataset[k] || 0);
+
+// Line chart — monthly trend
+new Chart(document.getElementById('lineChart'), {
+    type: 'line',
+    data: {
+        labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+        datasets: [{
+            label: 'Monthly Expenses (₹)',
+            data: ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'].map(k => getF(k)),
+            borderColor: '#667eea', backgroundColor: 'rgba(102,126,234,0.1)',
+            tension: 0.4, fill: true, pointRadius: 5, pointBackgroundColor: '#667eea'
+        }]
+    },
+    options: { responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } } }
+});
+
+// Pie chart
+new Chart(document.getElementById('pieChart2'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Food','Travel','Shopping','Bills'],
+        datasets: [{ data: [getF('food'),getF('travel'),getF('shopping'),getF('bills')],
+            backgroundColor: ['#fbbf24','#38bdf8','#f472b6','#4ade80'], borderWidth: 3, borderColor: '#fff' }]
+    },
+    options: { responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } } }
+});
+
+// Bar chart
+new Chart(document.getElementById('barChart2'), {
+    type: 'bar',
+    data: {
+        labels: ['Week 1','Week 2','Week 3','Week 4'],
+        datasets: [{ label: 'Spending (₹)',
+            data: [getF('w1'),getF('w2'),getF('w3'),getF('w4')],
+            backgroundColor: 'rgba(102,126,234,0.8)', borderRadius: 8 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } } }
+});
+</script>
+</body>
+</html>

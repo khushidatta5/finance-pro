@@ -1,0 +1,286 @@
+{
+  "sequences" : {
+    "incomes" : 6,
+    "savings_goals" : 2,
+    "users" : 6,
+    "expenses" : 13
+  },
+  "users" : [ {
+    "id" : 1,
+    "username" : "admin",
+    "email" : "admin@financepro.com",
+    "password" : "$2a$10$4h7fs.KJ4vob2cwGKXP57.neK7j0hMOlzWsXwLCg5Ob2P8shbdo86",
+    "fullName" : "Alex Johnson",
+    "currency" : "INR",
+    "darkMode" : false,
+    "role" : "ADMIN",
+    "createdAt" : "2026-05-15T00:15:17.3844924",
+    "updatedAt" : "2026-05-15T00:15:17.3844924"
+  }, {
+    "id" : 2,
+    "username" : "demo",
+    "email" : "demo@financepro.com",
+    "password" : "$2a$10$On.lub57OeJxu1byIhBW6uDb6GfWifzcdg7lIDf2ll6hDFonsoE66",
+    "fullName" : "Sam Wilson",
+    "currency" : "INR",
+    "darkMode" : false,
+    "role" : "USER",
+    "createdAt" : "2026-05-15T00:15:17.5108858",
+    "updatedAt" : "2026-05-15T00:15:17.5108858"
+  }, {
+    "id" : 3,
+    "username" : "kdk",
+    "email" : "kdk@gmail.com",
+    "password" : "$2a$10$mRF4dqjXTr91J4Yp1h/4Y.3VcAy76XS6tZ2KlFOTpgqLIY/r6h9rG",
+    "fullName" : "k",
+    "currency" : "INR",
+    "darkMode" : false,
+    "role" : "USER",
+    "createdAt" : "2026-05-15T00:16:28.2641616",
+    "updatedAt" : "2026-05-15T00:16:28.2641616"
+  }, {
+    "id" : 4,
+    "username" : "kdk05",
+    "email" : "dk@gmail.com",
+    "password" : "$2a$10$D2C9RIpIZnud/LZhAfdOIek.7kfKnzibyMXmq4R1AhVsu0/Gn41XC",
+    "fullName" : "kdk",
+    "currency" : "INR",
+    "darkMode" : false,
+    "role" : "USER",
+    "createdAt" : "2026-06-03T23:49:13.6504122",
+    "updatedAt" : "2026-06-03T23:49:13.6504122"
+  }, {
+    "id" : 5,
+    "username" : "kdk1",
+    "email" : "kdk1@gmail.com",
+    "password" : "$2a$10$Dckb1Vrw4sMO1xNOR/6loeWhgzN9pTkcUmOYbk1VrrDsA0IVD6Ome",
+    "fullName" : "kdk1",
+    "currency" : "INR",
+    "darkMode" : false,
+    "role" : "USER",
+    "createdAt" : "2026-06-05T08:29:23.8345",
+    "updatedAt" : "2026-06-05T08:29:23.8345"
+  }, {
+    "id" : 6,
+    "username" : "kdk2",
+    "email" : "kdk2@gmail.com",
+    "password" : "$2a$10$FnsS8uG07dlFSyvhjJlpG./aEVct2hncGn1XA8hyuDCFQWVVPljTi",
+    "fullName" : "kdk2",
+    "currency" : "INR",
+    "darkMode" : false,
+    "role" : "USER",
+    "createdAt" : "2026-06-05T10:21:34.7546172",
+    "updatedAt" : "2026-06-05T10:21:34.7546172"
+  } ],
+  "expenses" : [ {
+    "id" : 1,
+    "title" : "Grocery Shopping",
+    "amount" : 1200.50,
+    "category" : "FOOD",
+    "expenseDate" : "2026-05-13",
+    "notes" : "Weekly groceries",
+    "userId" : 1,
+    "createdAt" : "2026-05-15T00:15:17.5128869",
+    "updatedAt" : "2026-05-15T00:15:17.5128869"
+  }, {
+    "id" : 2,
+    "title" : "Netflix",
+    "amount" : 199.00,
+    "category" : "BILLS",
+    "expenseDate" : "2026-05-12",
+    "notes" : "Monthly streaming",
+    "userId" : 1,
+    "createdAt" : "2026-05-15T00:15:17.5167998",
+    "updatedAt" : "2026-05-15T00:15:17.5167998"
+  }, {
+    "id" : 3,
+    "title" : "Petrol",
+    "amount" : 1500.00,
+    "category" : "TRAVEL",
+    "expenseDate" : "2026-05-11",
+    "notes" : "Fuel refill",
+    "userId" : 1,
+    "createdAt" : "2026-05-15T00:15:17.5167998",
+    "updatedAt" : "2026-05-15T00:15:17.5167998"
+  }, {
+    "id" : 4,
+    "title" : "Amazon Order",
+    "amount" : 899.99,
+    "category" : "SHOPPING",
+    "expenseDate" : "2026-05-10",
+    "notes" : "Electronics accessories",
+    "userId" : 1,
+    "createdAt" : "2026-05-15T00:15:17.5167998",
+    "updatedAt" : "2026-05-15T00:15:17.5167998"
+  }, {
+    "id" : 5,
+    "title" : "Restaurant",
+    "amount" : 850.00,
+    "category" : "FOOD",
+    "expenseDate" : "2026-05-08",
+    "notes" : "Dinner with friends",
+    "userId" : 1,
+    "createdAt" : "2026-05-15T00:15:17.5276583",
+    "updatedAt" : "2026-05-15T00:15:17.5276583"
+  }, {
+    "id" : 6,
+    "title" : "Electricity Bill",
+    "amount" : 2450.00,
+    "category" : "BILLS",
+    "expenseDate" : "2026-05-07",
+    "notes" : "Monthly electricity",
+    "userId" : 1,
+    "createdAt" : "2026-05-15T00:15:17.5303418",
+    "updatedAt" : "2026-05-15T00:15:17.5303418"
+  }, {
+    "id" : 7,
+    "title" : "Uber Ride",
+    "amount" : 250.00,
+    "category" : "TRAVEL",
+    "expenseDate" : "2026-05-05",
+    "notes" : "Airport trip",
+    "userId" : 1,
+    "createdAt" : "2026-05-15T00:15:17.5303418",
+    "updatedAt" : "2026-05-15T00:15:17.5303418"
+  }, {
+    "id" : 8,
+    "title" : "Clothing Store",
+    "amount" : 2100.00,
+    "category" : "SHOPPING",
+    "expenseDate" : "2026-05-03",
+    "notes" : "New shirts",
+    "userId" : 1,
+    "createdAt" : "2026-05-15T00:15:17.5303418",
+    "updatedAt" : "2026-05-15T00:15:17.5303418"
+  }, {
+    "id" : 9,
+    "title" : "cake",
+    "amount" : 300,
+    "category" : "FOOD",
+    "expenseDate" : "2026-05-15",
+    "notes" : "",
+    "userId" : 3,
+    "createdAt" : "2026-05-15T00:17:22.3946691",
+    "updatedAt" : "2026-05-15T00:17:22.3946691"
+  }, {
+    "id" : 10,
+    "title" : "juice",
+    "amount" : 500,
+    "category" : "FOOD",
+    "expenseDate" : "2026-05-13",
+    "notes" : "",
+    "userId" : 3,
+    "createdAt" : "2026-05-15T00:20:26.3188033",
+    "updatedAt" : "2026-05-15T00:20:26.3188033"
+  }, {
+    "id" : 11,
+    "title" : "kedarnath",
+    "amount" : 80000,
+    "category" : "TRAVEL",
+    "expenseDate" : "2026-04-15",
+    "notes" : "",
+    "userId" : 3,
+    "createdAt" : "2026-05-15T00:21:12.1700267",
+    "updatedAt" : "2026-05-15T00:21:12.1700267"
+  }, {
+    "id" : 12,
+    "title" : "snacks",
+    "amount" : 5000,
+    "category" : "TRAVEL",
+    "expenseDate" : "2026-06-06",
+    "notes" : "",
+    "userId" : 5,
+    "createdAt" : "2026-06-05T08:30:47.6744512",
+    "updatedAt" : "2026-06-05T08:30:47.6744512"
+  }, {
+    "id" : 13,
+    "title" : "cake",
+    "amount" : 5000,
+    "category" : "FOOD",
+    "expenseDate" : "2026-06-05",
+    "notes" : "",
+    "userId" : 6,
+    "createdAt" : "2026-06-05T10:23:02.0428055",
+    "updatedAt" : "2026-06-05T10:23:02.0428055"
+  } ],
+  "incomes" : [ {
+    "id" : 1,
+    "title" : "Monthly Salary",
+    "amount" : 75000.00,
+    "source" : "SALARY",
+    "incomeDate" : "2026-05-01",
+    "notes" : "Salary credited",
+    "userId" : 1,
+    "createdAt" : "2026-05-15T00:15:17.536276",
+    "updatedAt" : "2026-05-15T00:15:17.536276"
+  }, {
+    "id" : 2,
+    "title" : "Freelance Project",
+    "amount" : 12500.00,
+    "source" : "FREELANCING",
+    "incomeDate" : "2026-05-09",
+    "notes" : "Logo design gig",
+    "userId" : 1,
+    "createdAt" : "2026-05-15T00:15:17.5382785",
+    "updatedAt" : "2026-05-15T00:15:17.5382785"
+  }, {
+    "id" : 3,
+    "title" : "Stock Dividends",
+    "amount" : 2400.00,
+    "source" : "INVESTMENTS",
+    "incomeDate" : "2026-04-30",
+    "notes" : "Q4 dividends",
+    "userId" : 1,
+    "createdAt" : "2026-05-15T00:15:17.5382785",
+    "updatedAt" : "2026-05-15T00:15:17.5382785"
+  }, {
+    "id" : 4,
+    "title" : "salry",
+    "amount" : 80000,
+    "source" : "SALARY",
+    "incomeDate" : "2026-05-15",
+    "notes" : "",
+    "userId" : 3,
+    "createdAt" : "2026-05-15T00:17:52.499911",
+    "updatedAt" : "2026-05-15T00:17:52.499911"
+  }, {
+    "id" : 5,
+    "title" : "salary",
+    "amount" : 5000,
+    "source" : "SALARY",
+    "incomeDate" : "2026-06-05",
+    "notes" : "",
+    "userId" : 5,
+    "createdAt" : "2026-06-05T08:30:28.4955428",
+    "updatedAt" : "2026-06-05T08:30:28.4955428"
+  }, {
+    "id" : 6,
+    "title" : "business income",
+    "amount" : 80000,
+    "source" : "PASSIVE",
+    "incomeDate" : "2026-06-03",
+    "notes" : "",
+    "userId" : 6,
+    "createdAt" : "2026-06-05T10:22:43.2552475",
+    "updatedAt" : "2026-06-05T10:22:43.2552475"
+  } ],
+  "savingsGoals" : [ {
+    "id" : 1,
+    "title" : "Emergency Fund",
+    "targetAmount" : 100000.00,
+    "currentAmount" : 35000.00,
+    "deadline" : "2026-11-15",
+    "userId" : 1,
+    "createdAt" : "2026-05-15T00:15:17.5382785",
+    "progressPercentage" : 35
+  }, {
+    "id" : 2,
+    "title" : "Trip to Goa",
+    "targetAmount" : 40000.00,
+    "currentAmount" : 12000.00,
+    "deadline" : "2026-09-15",
+    "userId" : 1,
+    "createdAt" : "2026-05-15T00:15:17.5464081",
+    "progressPercentage" : 30
+  } ]
+}

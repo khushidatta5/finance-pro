@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Finance Pro — Transactions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+    <link href="/css/styles.css" rel="stylesheet"/>
+</head>
+<body>
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-icon">FP</div><span class="brand-name">Finance Pro</span>
+        <button class="sidebar-close d-lg-none" onclick="closeSidebar()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <nav class="sidebar-nav">
+        <a href="/dashboard"    class="nav-item"><i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span></a>
+        <a href="/analytics"    class="nav-item"><i class="bi bi-bar-chart-line-fill"></i><span>Analytics</span></a>
+        <a href="/income"       class="nav-item"><i class="bi bi-arrow-up-circle-fill"></i><span>Income Streams</span></a>
+        <a href="/transactions" class="nav-item active"><i class="bi bi-arrow-left-right"></i><span>Transactions</span></a>
+        <a href="/expenses"     class="nav-item"><i class="bi bi-credit-card-fill"></i><span>Expenses</span></a>
+        <a href="/settings"     class="nav-item"><i class="bi bi-gear-fill"></i><span>Settings</span></a>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="user-avatar-sm" th:text="${user.fullName != null ? #strings.substring(user.fullName,0,1) : 'U'}">A</div>
+        <div class="flex-grow-1">
+            <div class="fw-600 small" th:text="${user.fullName ?: user.username}">Alex</div>
+            <div class="text-muted" style="font-size:.72rem;" th:text="${user.email}">email</div>
+        </div>
+        <a href="/logout" class="text-muted"><i class="bi bi-box-arrow-right"></i></a>
+    </div>
+</div>
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+<main class="main-content">
+    <div class="topbar">
+        <button class="topbar-toggle d-lg-none" onclick="openSidebar()"><i class="bi bi-list"></i></button>
+        <div class="topbar-left"><h4 class="mb-0 fw-700">Transactions</h4></div>
+        <div class="topbar-right">
+            <a href="/transactions/export" class="btn btn-outline-primary rounded-pill px-3">
+                <i class="bi bi-download me-1"></i>Export CSV
+            </a>
+        </div>
+    </div>
+    <div class="page-content">
+        <!-- Filters -->
+        <div class="card-custom p-4 mb-4">
+            <form th:action="@{/transactions}" method="get" class="row g-3 align-items-end">
+                <div class="col-12 col-md-4">
+                    <label class="form-label fw-500 small text-muted">Search</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" name="search" class="form-control" placeholder="Search transactions..." th:value="${search}"/>
+                    </div>
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label fw-500 small text-muted">Type</label>
+                    <select name="type" class="form-select">
+                        <option value="">All Types</option>
+                        <option value="INCOME"  th:selected="${type == 'INCOME'}">Income</option>
+                        <option value="EXPENSE" th:selected="${type == 'EXPENSE'}">Expense</option>
+                    </select>
+                </div>
+                <div class="col-6 col-md-3">
+                    <label class="form-label fw-500 small text-muted">Category</label>
+                    <select name="category" class="form-select">
+                        <option value="">All Categories</option>
+                        <option value="FOOD"         th:selected="${category == 'FOOD'}">Food</option>
+                        <option value="TRAVEL"       th:selected="${category == 'TRAVEL'}">Travel</option>
+                        <option value="SHOPPING"     th:selected="${category == 'SHOPPING'}">Shopping</option>
+                        <option value="BILLS"        th:selected="${category == 'BILLS'}">Bills</option>
+                        <option value="SALARY"       th:selected="${category == 'SALARY'}">Salary</option>
+                        <option value="FREELANCING"  th:selected="${category == 'FREELANCING'}">Freelancing</option>
+                        <option value="INVESTMENTS"  th:selected="${category == 'INVESTMENTS'}">Investments</option>
+                        <option value="PASSIVE"      th:selected="${category == 'PASSIVE'}">Passive</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-3">
+                    <button type="submit" class="btn btn-primary rounded-pill w-100"><i class="bi bi-funnel me-1"></i>Filter</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Transactions Table -->
+        <div class="card-custom p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="section-title mb-0">
+                    Transactions (<span th:text="${totalElements}">0</span> total)
+                </div>
+                <a href="/transactions" class="btn btn-sm btn-outline-secondary rounded-pill" th:if="${search != '' or type != '' or category != ''}">Clear Filters</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Amount</th>
+                            <th>Type</th>
+                            <th>Category</th>
+                            <th>Date</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="tx : ${transactions}">
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="tx-icon-sm" th:classappend="${tx.type == 'INCOME' ? 'tx-income-icon' : 'tx-expense-icon'}">
+                                        <i th:class="${tx.type == 'INCOME' ? 'bi bi-arrow-up-right' : 'bi bi-arrow-down-left'}"></i>
+                                    </div>
+                                    <span class="fw-500" th:text="${tx.title}">Title</span>
+                                </div>
+                            </td>
+                            <td class="fw-600" th:classappend="${tx.type == 'INCOME' ? 'text-success' : 'text-danger'}">
+                                <span th:text="${tx.type == 'INCOME' ? '+' : '-'}"></span>₹<span th:text="${#numbers.formatDecimal(tx.amount,1,'COMMA',2,'POINT')}">0</span>
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill px-3 py-1"
+                                      th:classappend="${tx.type == 'INCOME' ? 'bg-success' : 'bg-danger'}"
+                                      th:text="${tx.type}">TYPE</span>
+                            </td>
+                            <td>
+                                <span class="category-pill pill-default" th:if="${tx.category != null}"
+                                      th:text="${tx.category}">CAT</span>
+                            </td>
+                            <td class="text-muted" th:text="${tx.transactionDate}">2024-01-01</td>
+                            <td class="text-muted small" th:text="${tx.notes ?: '—'}">—</td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(transactions)}">
+                            <td colspan="6" class="text-center text-muted py-5">
+                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>No transactions match your filters.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <nav th:if="${totalPages > 1}" class="mt-3">
+                <ul class="pagination pagination-sm justify-content-center">
+                    <li class="page-item" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
+                        <a class="page-link rounded-pill me-1" th:href="@{/transactions(page=${currentPage-1},search=${search},type=${type},category=${category})}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                        th:classappend="${i == currentPage ? 'active' : ''}">
+                        <a class="page-link rounded-pill me-1"
+                           th:href="@{/transactions(page=${i},search=${search},type=${type},category=${category})}"
+                           th:text="${i + 1}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${currentPage == totalPages - 1 ? 'disabled' : ''}">
+                        <a class="page-link rounded-pill" th:href="@{/transactions(page=${currentPage+1},search=${search},type=${type},category=${category})}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/main.js"></script>
+</body>
+</html>
